@@ -1,53 +1,53 @@
-updateARDnames <- function(ard, addnames=TRUE, removenames=TRUE, verbose=TRUE) {
+mergePCdata <- function(pkdeflist, pclist) { 
   functionName <- as.list(sys.call())[[1]]
   
-  # sushmitha comments: Validate the ARD dataset
-  v <- validateARDdataset(ard)
-  
-  # sushmitha comments: Check if names should be added
-  if(addnames) {
-    missingnames <- v$namesmissing
-    # sushmitha comments: If there are missing names, add them
-    if(length(missingnames) > 0) { 
-      if(verbose) {
-        cat(glue::glue("{functionName}: adding"), "\n")
-        print(missingnames)
-      }
-      for(i in missingnames) {
-        ard <- ard %>%
-          dplyr::mutate(!!i := NA)
+  npc <- names(pclist)
+  ## bind pclist datasets if more than one
+  if(length(npc)>0) {
+    for(i in pclist) {
+      if(!exists("pc")) {
+        pc <- i$data
+      } else {
+        pc <- pc %>% dplyr::bind_rows(i$data)
       }
     }
   }
   
-  # sushmitha comments: Check if names should be removed
-  if(removenames) {
-    unexpectednames <- v$namesunexpected
-    # sushmitha comments: If there are unexpected names, remove them
-    if(length(unexpectednames) > 0) { 
-      if(verbose) {
-        cat(glue::glue("{functionName}: removing"), "\n")
-        print(unexpectednames)
-      }
-      for(i in unexpectednames) {
-        ard <- ard %>%
-          dplyr::mutate(!!i := NULL)
-      }
-    }
+  pc <- pc %>%
+    mutate(SUBJID=as.character(SUBJID), PKUSMID=as.character(PKUSMID))
+  ## 2023-02-13/TGT/ added PKSMND filter to pc to address record replication/extra records issues
+  knd <- grepl("^PKSMND$", names(pc), ignore.case=TRUE, perl=TRUE)
+  if(any(knd)) { 
+    pc <- pc %>%
+      filter(PKSMND=="DONE")
   }
   
-  # sushmitha comments: Return the updated ARD dataset
-  return(ard)
+  for(i in 1:length(pkdeflist)) {
+    pkterm <- pkdeflist[[i]]$pkterm
+    mergeddata <- pkdeflist[[i]]$mergeddata
+    ## add OBS field to ensure retention of only the original records
+    mergeddata <- mergeddata %>%
+      mutate(OBS=1:nrow(.))
+    
+    ## sort by STUDY, PKBDFLD, PKTERM
+    mergeddata <- mergeddata %>% arrange(STUDY, PKBDFLD, PKTERM)
+    ## ensure that SUBJID, PKUSMID from pkdeflist are character
+    mergeddata <- mergeddata %>% mutate(SUBJID=as.character(SUBJID), PKUSMID=as.character(PKUSMID))
+    ## ensure that SUBJID, PKUSMID from pc are character
+    
+    ## merge
+    mergeddata <- mergeddata %>%
+      dplyr::left_join(pc, 
+                       by=c("SUBJID", "PKUSMID"),
+                       suffix = c("", ".pc"), keep=TRUE)
+    
+    ## retain only the original records and then remove OBS
+    mergeddata <- mergeddata %>%
+      filter(!duplicated(OBS)) %>%
+      mutate(OBS=NULL)
+    
+    pkdeflist[[i]]$mergeddata <- mergeddata
+  }
+  
+  return(pkdeflist)
 }
-
-
-#'Sushmitha Comment
-
-#' Function Purpose: 
-#' The updateARDnames function updates an ARD dataset by adding or removing column names 
-#' based on validation results.
-#' 
-#' If specified, it checks for missing names in the dataset and adds them as new columns 
-#' initialized to NA. It also checks for unexpected names and removes those columns if 
-#' specified. 
-#' The function returns the updated ARD dataset after making the necessary adjustments.
