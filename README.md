@@ -1,3 +1,50 @@
+#' Sushmitha Summary 
+
+#' This function returns a list of standardized ARD (Automatic Reporting Device) variables
+#' that can be used for checking ARD or PKDEF (Pharmacokinetics Definition File) variables.
+#'
+#' Function Parameters:
+#' 
+#' - ardname: A character string specifying the name of the ARD variable to retrieve.
+#'            This could be ARD (Automatic Reporting Device) or PKDEF (Pharmacokinetics Definition File).
+#' - ardtype: Specifies the type of variables to retrieve. It can be one of the following:
+#'   - all: Return all variables.
+#'   - standard: Return standard (green) variables.
+#'   - additional: Return additional (yellow) variables.
+#'   - optional: Return optional (orange) variables.
+#'
+#' Purpose:
+#' This function allows users to retrieve different sets of ARD variables, 
+#' which are classified by their type (standard, additional, or optional). 
+#' This is useful for checking or validating the ARD or PKDEF files in the context 
+#' of Non-Compartmental Analysis (NCA) or other pharmacokinetic processes.
+#'
+#' Examples:
+#' The following examples demonstrate how to use this function:
+#' 
+#' - Retrieve all ARD variables.
+#' - Retrieve a specific ARD variable by name (e.g., PKPTMS).
+#' - Retrieve variables based on their classification (e.g., standard, optional, etc.).
+#'
+#' Annotations:
+#' 
+#' - @keywords nca opennca: Tags the function with relevant keywords for pharmacokinetic analysis and NCA.
+#' - @export: Makes the function available for use when the package is loaded.
+#' - @examples: Provides sample usage of the function to help users understand how to call it.
+#'
+#' Summary of how it works:
+#' 
+#' The function filters ARD or PKDEF variables based on the input parameters (ardname or ardtype).
+#' If no specific name or type is provided, the function likely defaults to returning all available ARD variables.
+#' This function is useful in pharmacokinetics, particularly when dealing with data files 
+#' that require specific variable checks or validation.
+#'
+
+
+
+
+
+
 #' ardVariables
 #'
 #' function returns a list of standardized ARD variables
@@ -153,14 +200,25 @@ ardVariables <- function(ardname=NULL, ardtype="all") {
   result <- result %>% add_row(class="optional", variable="DATAPREPFILECOM", pkdefvariable="", source="", description="2017-07-20/TGT/ Updated upon consultation with Stuart Pearce. DATAPREPFILECOM will capture an overall data preparation comment for the file. ", valueNull=TRUE, sdeidvar=FALSE, datatype="VARCHAR2(4000)")
   result <- result %>% add_row(class="optional", variable="DATAPREPROWCOM", pkdefvariable="", source="", description="Added in V3.0 of eNCA Data Standard\n Comments as noted by the data preparer\n For Production and Legacy LCD and legacy LPD files, every row may have a value but the value MUST be the same since ONLY the VALUE entered on the first will take effect.\n APS, CRDC or external CROs will not populate this field for Production LCD Files.  If this field is populated in error, the autoloader will not read/apply this field for Production LCD Files.  The autoloader code for Production LCD Files will stop at the creation of an Analysis Dataset within eNCA.\nThis field should ONLY be applicable to files for Legacy Data loading and NOT for production data loading for parameters.  There is no production data loading for PK parameters. If this file is inadvertently included with a production LCD, it should not be loaded. Loading of data from external vendors, when applicable, will be treated as for Legacy Data loading.\n2017-07-20/TGT/ Updated upon consultation with Stuart Pearce. These will be record by record individual comments that the data programmer can add to the data file directly", valueNull=TRUE, sdeidvar=FALSE, datatype="VARCHAR2(4000)")
   result <- result %>% add_row(class="optional", variable="DATASTATUS", pkdefvariable="", source="", description="QA status of supplied data such as DRAFT or FINAL\n Note that this does not refer to the QA status of the bioanalytical result (see PKSAMQA) but rather the CRF data merged/added to the file.\n For Legacy LPD and VPD Files, every row will have a value but the value MUST be the same since ONLY the VALUE entered on the first record will take effect.\n This field should ONLY be applicable to files for Legacy Data loading and NOT for production data loading for parameters.  There is no production data loading for PK parameters. If this file is inadvertently included with a production LCD, it should not be loaded. Loading of data from external vendors, when applicable, will be treated as for Legacy Data loading.\n Note for PKPView, DATASTATUS in the view will be updated when PK analyst updates data status on the Analysis Page of eNCA", valueNull=FALSE, sdeidvar=FALSE, datatype="VARCHAR2 (100 Byte)")
+
+# sushmitha Comments
+# If the 'ardname' argument is not NULL, this section filters the 'result' 
+# data frame to return only the row(s) where the 'variable' column matches 
+# the value of 'ardname'.
   
   if(!is.null(ardname)) {
     result <- result %>% filter(variable==ardname)
   }
-  
+
+
+  # # If 'ardtype' is not set to "all", this section filters the 'result' 
+# data frame to return only the row(s) where the 'class' column matches 
+# the specified 'ardtype' (e.g., "standard", "optional", "additional").
+
   if(ardtype!="all") {
     result <- result %>% filter(class==ardtype)
   }
-  
+
+  # Finally, the function returns the filtered 'result' data frame.
   return(result)
 }
