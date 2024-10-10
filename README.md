@@ -48,21 +48,38 @@
 mapAnalytesToTreatments <- function(atlist) {
   functionName <- as.list(sys.call())[[1]]
   
-  if(length(atlist)>0) {
+  # sushmitha comments: Check if the input list of analytes to treatments is not empty
+  if(length(atlist) > 0) {
+    # sushmitha comments: Loop through each item in the atlist
     for(i in 1:length(atlist)) {
-      pkdeftrt <- names(atlist)[i]
-      ectrt <- atlist[[i]]
-      if(i==1) {
-        analyteTreatmentMap <- dplyr::tibble(pkdeftrt=pkdeftrt, ectrt=ectrt)
+      pkdeftrt <- names(atlist)[i]  # sushmitha comments: Get the name of the treatment
+      ectrt <- atlist[[i]]           # sushmitha comments: Get the corresponding analyte
+      
+      # sushmitha comments: Create the tibble for the first treatment
+      if(i == 1) {
+        analyteTreatmentMap <- dplyr::tibble(pkdeftrt = pkdeftrt, ectrt = ectrt)
       } else {
+        # sushmitha comments: Add a new row for subsequent treatments
         analyteTreatmentMap <- analyteTreatmentMap %>%
-          dplyr::add_row(pkdeftrt=pkdeftrt, ectrt=ectrt)
+          dplyr::add_row(pkdeftrt = pkdeftrt, ectrt = ectrt)
       }
     }
   } else {
-    ##        analyteTreatmentMap <- dplyr::tibble(pkdeftrt=NA, ectrt=NA)
+    # sushmitha comments: If the list is empty, initialize an empty tibble
     analyteTreatmentMap <- dplyr::tibble()
   }
   
+  # sushmitha comments: Return the final tibble mapping treatments to analytes
   return(analyteTreatmentMap)
 }
+
+#' Sushmitha Comment
+
+#' Function Purpose: 
+#' The mapAnalytesToTreatments function creates a mapping of treatments (pkdeftrt) 
+#' to their corresponding analytes (ectrt) from a given list.
+#' 
+#' It checks if the input list is empty. If not, it iterates over the list to build 
+#' a tibble that maps each treatment to its analyte. 
+#' The resulting tibble is returned, either populated with the mappings or empty 
+#' if the input list was empty.
