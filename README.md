@@ -1,4 +1,5 @@
-
-Warning: Error in bs4DashBrand: unused arguments (img = "https://www.iprcenter.gov/image-repository/pfizer_-2021-svg.png/@@images/image.png", width = 145, height = 30)
-  63: bs4DashNavbar
+Warning: Error in if: argument is of length zero
+  69: dots_list
+  68: shiny::tags$body
+  62: bs4DashPage
    1: runApp
