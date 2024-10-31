@@ -1,10 +1,4 @@
 
-Listening on http://127.0.0.1:3676
-$type
-[1] "text/css"
-
-Warning: Error in tagAssert: Expected an object with class 'shiny.tag'.
-  64: stop
-  63: tagAssert
-  62: bs4DashPage
+Warning: Error in bs4DashBrand: unused arguments (img = "https://www.iprcenter.gov/image-repository/pfizer_-2021-svg.png/@@images/image.png", width = 145, height = 30)
+  63: bs4DashNavbar
    1: runApp
